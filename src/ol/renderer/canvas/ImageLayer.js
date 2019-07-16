@@ -101,16 +101,19 @@ class CanvasImageLayerRenderer extends IntermediateCanvasRenderer {
     const imageLayer = /** @type {import("../../layer/Image.js").default} */ (this.getLayer());
     const imageSource = /** @type {import("../../source/Image.js").default} */ (imageLayer.getSource());
 
-    const hints = frameState.viewHints;
-
     const vectorRenderer = this.vectorRenderer_;
     let renderedExtent = frameState.extent;
     if (!vectorRenderer && layerState.extent !== undefined) {
       renderedExtent = getIntersection(renderedExtent, layerState.extent);
     }
 
-    if (!hints[ViewHint.ANIMATING] && !hints[ViewHint.INTERACTING] &&
-        !isEmpty(renderedExtent)) {
+    const animating = frameState.viewHints[ViewHint.ANIMATING];
+    const interacting = frameState.viewHints[ViewHint.INTERACTING];
+    const updateWhileAnimating = imageLayer.getUpdateWhileAnimating();
+    const updateWhileInteracting = imageLayer.getUpdateWhileInteracting();
+
+    if ((updateWhileAnimating || !animating) && (updateWhileInteracting || !interacting) &&
+      !isEmpty(renderedExtent)) {
       let projection = viewState.projection;
       if (!ENABLE_RASTER_REPROJECTION) {
         const sourceProjection = imageSource.getProjection();

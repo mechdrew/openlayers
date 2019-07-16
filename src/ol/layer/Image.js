@@ -24,6 +24,14 @@ import Layer from './Layer.js';
  * temporary layers. The standard way to add a layer to a map and have it managed by the map is to
  * use {@link module:ol/Map#addLayer}.
  * @property {import("../source/Image.js").default} [source] Source for this layer.
+ * @property {boolean} [updateWhileAnimating=false] When set to `true` and `renderMode`
+ * is `vector`, feature batches will be recreated during animations. This means that no
+ * vectors will be shown clipped, but the setting will have a performance impact for large
+ * amounts of vector data. When set to `false`, batches will be recreated when no animation
+ * is active.
+ * @property {boolean} [updateWhileInteracting=false] When set to `true` and `renderMode`
+ * is `vector`, feature batches will be recreated during interactions. See also
+ * `updateWhileAnimating`.
  */
 
 
@@ -54,6 +62,35 @@ class ImageLayer extends Layer {
      */
     this.type = LayerType.IMAGE;
 
+    /**
+    * @type {boolean}
+    * @private
+    */
+    this.updateWhileAnimating_ = options.updateWhileAnimating !== undefined ?
+      options.updateWhileAnimating : false;
+
+    /**
+     * @type {boolean}
+     * @private
+     */
+    this.updateWhileInteracting_ = options.updateWhileInteracting !== undefined ?
+      options.updateWhileInteracting : false;
+  }
+
+  /**
+  * @return {boolean} Whether the rendered layer should be updated while
+  *     animating.
+  */
+  getUpdateWhileAnimating() {
+    return this.updateWhileAnimating_;
+  }
+
+  /**
+  * @return {boolean} Whether the rendered layer should be updated while
+  *     interacting.
+  */
+  getUpdateWhileInteracting() {
+    return this.updateWhileInteracting_;
   }
 
 }
