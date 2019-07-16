@@ -39,6 +39,7 @@ class CanvasImageLayerRenderer extends CanvasLayerRenderer {
    * @inheritDoc
    */
   prepareFrame(frameState) {
+    const imageLayer = /** @type {import("../../layer/Image.js").default} */ (this.getLayer());
     const layerState = frameState.layerStatesArray[frameState.layerIndex];
     const pixelRatio = frameState.pixelRatio;
     const viewState = frameState.viewState;
@@ -46,14 +47,18 @@ class CanvasImageLayerRenderer extends CanvasLayerRenderer {
 
     const imageSource = this.getLayer().getSource();
 
-    const hints = frameState.viewHints;
-
     let renderedExtent = frameState.extent;
     if (layerState.extent !== undefined) {
       renderedExtent = getIntersection(renderedExtent, layerState.extent);
     }
 
-    if (!hints[ViewHint.ANIMATING] && !hints[ViewHint.INTERACTING] && !isEmpty(renderedExtent)) {
+    const animating = frameState.viewHints[ViewHint.ANIMATING];
+    const interacting = frameState.viewHints[ViewHint.INTERACTING];
+    const updateWhileAnimating = imageLayer.getUpdateWhileAnimating();
+    const updateWhileInteracting = imageLayer.getUpdateWhileInteracting();
+
+    if ((updateWhileAnimating || !animating) && (updateWhileInteracting || !interacting) &&
+      !isEmpty(renderedExtent)) {
       let projection = viewState.projection;
       if (!ENABLE_RASTER_REPROJECTION) {
         const sourceProjection = imageSource.getProjection();
